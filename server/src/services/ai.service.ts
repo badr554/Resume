@@ -2,16 +2,31 @@ import Anthropic from "@anthropic-ai/sdk";
 import { HttpError } from "../middleware/error.middleware";
 import type { AtsResult, ResumeContent } from "../types";
 
-const MODEL = "claude-sonnet-4-6";
+const CLAUDE_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 2048;
+
+// ---------------------------------------------------------------------------
+// Provider selection: Anthropic (paid) if configured, otherwise Google Gemini
+// (free tier — get a key at https://aistudio.google.com/apikey).
+// Set AI_PROVIDER=gemini in .env to force Gemini even when both keys exist.
+// ---------------------------------------------------------------------------
+
+function anthropicKey(): string | null {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key || key.includes("REPLACE") || key.trim() === "") return null;
+  return key;
+}
+
+function geminiKey(): string | null {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key || key.includes("REPLACE") || key.trim() === "") return null;
+  return key;
+}
 
 let client: Anthropic | null = null;
 
 function anthropic(): Anthropic {
-  if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY.includes("REPLACE")) {
-    throw new HttpError(503, "AI is not configured. Set ANTHROPIC_API_KEY on the server.");
-  }
-  if (!client) client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  if (!client) client = new Anthropic({ apiKey: anthropicKey()! });
   return client;
 }
 
@@ -24,16 +39,91 @@ function sanitize(input: string, maxLength = 12000): string {
     .slice(0, maxLength);
 }
 
-async function complete(system: string, user: string): Promise<string> {
-  const response = await anthropic().messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS,
-    system,
-    messages: [{ role: "user", content: user }],
+async function completeAnthropic(system: string, user: string): Promise<string> {
+  try {
+    const response = await anthropic().messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: MAX_TOKENS,
+      system,
+      messages: [{ role: "user", content: user }],
+    });
+    const block = response.content.find((b) => b.type === "text");
+    if (!block || block.type !== "text") throw new HttpError(502, "AI returned an empty response");
+    return block.text;
+  } catch (err) {
+    if (err instanceof HttpError) throw err;
+    const message = err instanceof Error ? err.message : "";
+    if (message.includes("credit balance")) {
+      throw new HttpError(
+        503,
+        "The Anthropic API account has no credits. Add credits at console.anthropic.com, or set a free GEMINI_API_KEY in server/.env instead."
+      );
+    }
+    if (message.includes("401") || message.toLowerCase().includes("authentication")) {
+      throw new HttpError(503, "The Anthropic API key is invalid. Check ANTHROPIC_API_KEY in server/.env.");
+    }
+    console.error("[ai] Anthropic request failed:", message);
+    throw new HttpError(502, "The AI service failed to respond. Try again in a moment.");
+  }
+}
+
+interface GeminiResponse {
+  candidates?: {
+    content?: { parts?: { text?: string }[] };
+    finishReason?: string;
+  }[];
+  error?: { message?: string; status?: string };
+}
+
+async function completeGemini(system: string, user: string): Promise<string> {
+  const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": geminiKey()!,
+    },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: "user", parts: [{ text: user }] }],
+      generationConfig: {
+        maxOutputTokens: 8192,
+        thinkingConfig: { thinkingBudget: 0 },
+      },
+    }),
   });
-  const block = response.content.find((b) => b.type === "text");
-  if (!block || block.type !== "text") throw new HttpError(502, "AI returned an empty response");
-  return block.text;
+
+  const data = (await res.json()) as GeminiResponse;
+
+  if (!res.ok) {
+    const detail = data.error?.message ?? `HTTP ${res.status}`;
+    if (res.status === 429) {
+      throw new HttpError(429, "The free Gemini API quota was hit — wait a minute and try again.");
+    }
+    if (res.status === 400 || res.status === 403) {
+      throw new HttpError(503, `Gemini API rejected the request: ${detail}. Check GEMINI_API_KEY in server/.env.`);
+    }
+    console.error("[ai] Gemini request failed:", detail);
+    throw new HttpError(502, `Gemini API error: ${detail}`);
+  }
+
+  const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  if (!text.trim()) throw new HttpError(502, "AI returned an empty response");
+  return text;
+}
+
+async function complete(system: string, user: string): Promise<string> {
+  const forced = process.env.AI_PROVIDER?.toLowerCase();
+  if (forced === "gemini" && geminiKey()) return completeGemini(system, user);
+  if (forced === "anthropic" && anthropicKey()) return completeAnthropic(system, user);
+
+  if (anthropicKey()) return completeAnthropic(system, user);
+  if (geminiKey()) return completeGemini(system, user);
+  throw new HttpError(
+    503,
+    "AI is not configured. Set ANTHROPIC_API_KEY or a free GEMINI_API_KEY in server/.env (get one at aistudio.google.com/apikey)."
+  );
 }
 
 function extractJson<T>(raw: string): T {

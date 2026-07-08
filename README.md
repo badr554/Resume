@@ -5,7 +5,7 @@ ResumeAI is a premium, full-stack, AI-powered resume builder designed to help jo
 ## 🚀 Features
 
 - **Dynamic Resume Builder:** Split accordion-style form editor with responsive, live A4 preview.
-- **AI Tailoring (Claude 3.5 Sonnet):** Rewrite and refine individual sections or generate entire resumes from a job title and description.
+- **AI Tailoring (Google Gemini / Claude):** Rewrite and refine individual sections or generate entire resumes from a job title and description (supports free Gemini tier out-of-the-box).
 - **ATS Checker Dashboard:** Interactive conic-gradient score gauge measuring keyword matching, displaying matched vs missing keywords side-by-side.
 - **CV File Uploading:** Drag-and-drop or upload existing PDF/TXT resume files to parse and check their ATS score dynamically.
 - **Cover Letter Generator:** Custom AI cover letter generation linked to your saved CV templates, including options to copy, save, and download as PDF.
@@ -28,7 +28,7 @@ ResumeAI is a premium, full-stack, AI-powered resume builder designed to help jo
 ### Backend
 - **Framework:** Node.js + Express + TypeScript
 - **Database & ORM:** MySQL + Prisma ORM
-- **AI Service:** `@anthropic-ai/sdk` (Claude claude-sonnet-4-6)
+- **AI Service:** Google Gemini API (`gemini-2.5-flash` natively fetched) with optional fallback to `@anthropic-ai/sdk` (Claude)
 - **PDF Exporter:** Server-side PDF rendering using Puppeteer
 - **Authentication:** JWT (httpOnly cookies for refresh tokens + memory access tokens)
 - **Security:** Helmet, CORS, Express Rate Limit, bcrypt
@@ -71,6 +71,8 @@ Ensure you have the following installed locally:
      JWT_SECRET="your-32+-character-secret"
      JWT_REFRESH_SECRET="your-refresh-token-secret"
      ANTHROPIC_API_KEY="your-anthropic-api-key"
+     GEMINI_API_KEY="your-google-gemini-api-key"
+     AI_PROVIDER="gemini"
      CLIENT_URL="http://localhost:5173"
      PORT=3000
      NODE_ENV=development
