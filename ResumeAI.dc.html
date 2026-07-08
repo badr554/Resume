@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Georgia&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; -webkit-font-smoothing: antialiased; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      70% { transform: scale(1.4); opacity: 0; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</helmet>
+
+<div style="display:flex; height:100vh; width:100%; font-family:'Inter',sans-serif; background:#F8FAFC; overflow:hidden; color:#0F172A;">
+
+  <!-- SIDEBAR -->
+  <aside style="width:248px; flex-shrink:0; background:#0F172A; display:flex; flex-direction:column; padding:20px 14px; box-sizing:border-box;">
+    <div style="display:flex; align-items:center; gap:10px; padding:6px 10px 22px 10px;">
+      <div style="width:30px; height:30px; border-radius:8px; background:#3B82F6; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; flex-shrink:0;">R</div>
+      <span style="color:#fff; font-weight:700; font-size:15.5px; letter-spacing:-0.01em;">ResumeAI</span>
+    </div>
+
+    <nav style="display:flex; flex-direction:column; gap:2px; margin-top:8px;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="5">
+        <div
+          onClick="{{ item.onClick }}"
+          style="{{ item.wrapStyle }}"
+          style-hover="background:rgba(255,255,255,0.06);"
+        >
+          <div style="{{ item.dotStyle }}"></div>
+          <span style="{{ item.textStyle }}">{{ item.label }}</span>
+        </div>
+      </sc-for>
+    </nav>
+
+    <div style="margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:10px;">
+      <div style="width:30px; height:30px; border-radius:50%; background:#334155; display:flex; align-items:center; justify-content:center; color:#E2E8F0; font-weight:600; font-size:12px; flex-shrink:0;">SC</div>
+      <div style="min-width:0;">
+        <div style="color:#fff; font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Sarah Chen</div>
+        <div style="color:rgba(255,255,255,0.45); font-size:11.5px;">Pro Plan</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <main style="flex:1; overflow-y:auto; position:relative; min-width:0;">
+
+    <!-- ============ DASHBOARD ============ -->
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Dashboard" style="padding:36px 44px; max-width:1280px;">
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:28px;">
+          <div>
+            <h1 style="font-size:26px; font-weight:700; margin:0 0 6px 0; letter-spacing:-0.02em;">My Resumes</h1>
+            <p style="margin:0; color:#64748B; font-size:14.5px;">6 resumes &middot; manage, edit, and track your applications</p>
+          </div>
+          <button style="background:#3B82F6; color:#fff; border:none; padding:11px 18px; border-radius:9px; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;" style-hover="background:#2563EB;">
+            <span style="font-size:16px; line-height:1;">+</span> New Resume
+          </button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
+          <sc-for list="{{ resumeCards }}" as="card" hint-placeholder-count="6">
+            <div style="background:#fff; border:1px solid #E2E8F0; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; transition:box-shadow .15s ease;" style-hover="box-shadow:0 8px 24px rgba(15,23,42,0.08); border-color:#CBD5E1;">
+              <div style="height:132px; background:#F8FAFC; border-bottom:1px solid #E2E8F0; padding:16px 18px; display:flex; flex-direction:column; gap:6px;">
+                <div style="width:60%; height:8px; border-radius:3px; background:#CBD5E1;"></div>
+                <div style="width:40%; height:6px; border-radius:3px; background:#E2E8F0; margin-bottom:6px;"></div>
+                <div style="width:90%; height:5px; border-radius:3px; background:#E2E8F0;"></div>
+                <div style="width:80%; height:5px; border-radius:3px; background:#E2E8F0;"></div>
+                <div style="width:85%; height:5px; border-radius:3px; background:#E2E8F0;"></div>
+                <div style="width:55%; height:5px; border-radius:3px; background:#E2E8F0;"></div>
+              </div>
+              <div style="padding:16px 18px; display:flex; flex-direction:column; gap:10px; flex:1;">
+                <div>
+                  <div style="font-size:15px; font-weight:600; color:#0F172A; margin-bottom:2px;">{{ card.title }}</div>
+                  <div style="font-size:12.5px; color:#94A3B8;">{{ card.role }}</div>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                  <span style="font-size:12px; color:#94A3B8;">Edited {{ card.lastEdited }}</span>
+                  <span style="{{ card.badgeStyle }}">{{ card.score }} ATS</span>
+                </div>
+                <div style="display:flex; gap:8px; margin-top:4px;">
+                  <button onClick="{{ card.onEdit }}" style="flex:1; background:#0F172A; color:#fff; border:none; padding:8px 0; border-radius:7px; font-size:12.5px; font-weight:600; cursor:pointer;" style-hover="background:#1E293B;">Edit</button>
+                  <button style="flex:1; background:#fff; color:#334155; border:1px solid #E2E8F0; padding:8px 0; border-radius:7px; font-size:12.5px; font-weight:600; cursor:pointer;" style-hover="background:#F1F5F9;">Download</button>
+                  <button style="flex:1; background:#fff; color:#334155; border:1px solid #E2E8F0; padding:8px 0; border-radius:7px; font-size:12.5px; font-weight:600; cursor:pointer;" style-hover="background:#F1F5F9;">Duplicate</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ TEMPLATES ============ -->
+    <sc-if value="{{ isTemplates }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Templates" style="padding:36px 44px; max-width:1280px;">
+        <div style="margin-bottom:28px;">
+          <h1 style="font-size:26px; font-weight:700; margin:0 0 6px 0; letter-spacing:-0.02em;">Templates</h1>
+          <p style="margin:0; color:#64748B; font-size:14.5px;">Choose a starting point &mdash; fully editable after you pick one</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:22px;">
+          <sc-for list="{{ templateCards }}" as="tpl" hint-placeholder-count="6">
+            <div style="position:relative; border-radius:14px; overflow:hidden; border:1px solid #E2E8F0; background:#fff; cursor:pointer;">
+              <div style="height:200px; background:#F1F5F9; padding:14px; display:flex; flex-direction:column; gap:8px;">
+                <div style="{{ tpl.headerBarStyle }}"></div>
+                <div style="width:70%; height:7px; border-radius:3px; background:#CBD5E1; margin-top:4px;"></div>
+                <div style="width:50%; height:6px; border-radius:3px; background:#E2E8F0;"></div>
+                <div style="width:95%; height:5px; border-radius:3px; background:#E2E8F0; margin-top:6px;"></div>
+                <div style="width:88%; height:5px; border-radius:3px; background:#E2E8F0;"></div>
+                <div style="width:92%; height:5px; border-radius:3px; background:#E2E8F0;"></div>
+                <div style="width:60%; height:5px; border-radius:3px; background:#E2E8F0;"></div>
+              </div>
+              <div style="position:absolute; inset:0 0 68px 0; background:rgba(15,23,42,0.55); opacity:0; display:flex; align-items:center; justify-content:center; transition:opacity .15s ease;" style-hover="opacity:1;">
+                <button onClick="{{ tpl.onUse }}" style="background:#fff; color:#0F172A; border:none; padding:10px 18px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;">Use Template</button>
+              </div>
+              <div style="padding:14px 16px; border-top:1px solid #E2E8F0;">
+                <div style="font-size:14.5px; font-weight:600;">{{ tpl.name }}</div>
+                <div style="font-size:12px; color:#94A3B8; margin-top:2px;">{{ tpl.tag }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ ATS CHECKER ============ -->
+    <sc-if value="{{ isAts }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="ATS Checker" style="padding:36px 44px; max-width:1280px;">
+        <div style="margin-bottom:24px;">
+          <h1 style="font-size:26px; font-weight:700; margin:0 0 6px 0; letter-spacing:-0.02em;">ATS Score Checker</h1>
+          <p style="margin:0; color:#64748B; font-size:14.5px;">See how well &ldquo;Senior Product Designer Resume&rdquo; matches a job description</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
+          <div style="background:#fff; border:1px solid #E2E8F0; border-radius:14px; padding:20px;">
+            <div style="font-size:13.5px; font-weight:600; color:#334155; margin-bottom:10px;">Job Description</div>
+            <textarea
+              value="{{ jobDescription }}"
+              onChange="{{ onJobDescriptionChange }}"
+              placeholder="Paste the job description here..."
+              style="width:100%; height:360px; resize:none; border:1px solid #E2E8F0; border-radius:9px; padding:14px; font-family:inherit; font-size:13.5px; line-height:1.6; color:#334155; outline:none;"
+            ></textarea>
+            <button onClick="{{ openAiModal }}" style="margin-top:14px; width:100%; background:#3B82F6; color:#fff; border:none; padding:12px 0; border-radius:9px; font-size:14px; font-weight:600; cursor:pointer;" style-hover="background:#2563EB;">Fix with AI</button>
+          </div>
+
+          <div style="background:#fff; border:1px solid #E2E8F0; border-radius:14px; padding:24px; display:flex; flex-direction:column; align-items:center; gap:20px;">
+            <div style="position:relative; width:168px; height:168px; border-radius:50%; background:conic-gradient(#3B82F6 0% 78%, #E2E8F0 78% 100%); display:flex; align-items:center; justify-content:center;">
+              <div style="width:130px; height:130px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <div style="font-size:34px; font-weight:800; color:#0F172A; line-height:1;">78</div>
+                <div style="font-size:11.5px; color:#94A3B8; margin-top:2px;">/ 100</div>
+              </div>
+            </div>
+            <div style="background:#FFFBEB; color:#B45309; font-size:12.5px; font-weight:600; padding:6px 14px; border-radius:999px;">Good Match &mdash; Room to Improve</div>
+
+            <div style="width:100%; display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px;">
+              <div>
+                <div style="font-size:12.5px; font-weight:600; color:#334155; margin-bottom:8px;">Matched Keywords</div>
+                <div style="display:flex; flex-direction:column; gap:7px;">
+                  <sc-for list="{{ matchedKeywords }}" as="kw" hint-placeholder-count="6">
+                    <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:#334155;">
+                      <span style="width:16px; height:16px; border-radius:50%; background:#ECFDF5; color:#059669; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">&#10003;</span>
+                      {{ kw }}
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:12.5px; font-weight:600; color:#334155; margin-bottom:8px;">Missing Keywords</div>
+                <div style="display:flex; flex-direction:column; gap:7px;">
+                  <sc-for list="{{ missingKeywords }}" as="kw" hint-placeholder-count="4">
+                    <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:#334155;">
+                      <span style="width:16px; height:16px; border-radius:50%; background:#FEF2F2; color:#DC2626; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;">&#10005;</span>
+                      {{ kw }}
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ BUILDER ============ -->
+    <sc-if value="{{ isBuilder }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Resume Builder" style="display:flex; flex-direction:column; height:100%;">
+        <!-- top bar -->
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 28px; border-bottom:1px solid #E2E8F0; background:#fff; flex-shrink:0; gap:16px;">
+          <div style="display:flex; align-items:center; gap:14px; min-width:0;">
+            <div style="font-size:15px; font-weight:600; white-space:nowrap;">{{ form.title }} Resume</div>
+            <div style="display:flex; gap:4px; background:#F1F5F9; padding:3px; border-radius:8px;">
+              <sc-for list="{{ templateSwitcherItems }}" as="t" hint-placeholder-count="6">
+                <button onClick="{{ t.onClick }}" style="{{ t.btnStyle }}">{{ t.name }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; flex-shrink:0;">
+            <button style="background:#fff; color:#334155; border:1px solid #E2E8F0; padding:9px 16px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer;" style-hover="background:#F1F5F9;">Download PDF</button>
+            <button onClick="{{ openAiModal }}" style="background:#3B82F6; color:#fff; border:none; padding:9px 16px; border-radius:8px; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:7px;" style-hover="background:#2563EB;">
+              <span style="font-size:14px;">&#10022;</span> Generate with AI
+            </button>
+          </div>
+        </div>
+
+        <!-- split body -->
+        <div style="flex:1; display:grid; grid-template-columns:400px 1fr; min-height:0;">
+
+          <!-- FORM -->
+          <div style="overflow-y:auto; border-right:1px solid #E2E8F0; background:#fff; padding:20px;">
+
+            <!-- Personal Info -->
+            <div style="border:1px solid #E2E8F0; border-radius:10px; margin-bottom:12px; overflow:hidden;">
+              <div onClick="{{ toggleSection_personal }}" style="display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; background:#F8FAFC;">
+                <span style="font-size:14px; font-weight:600;">Personal Info</span>
+                <span style="{{ chevronStyle_personal }}">&#8250;</span>
+              </div>
+              <sc-if value="{{ openSections.personal }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+                  <label style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#64748B; font-weight:600;">Full Name
+                    <input value="{{ form.fullName }}" onChange="{{ onFullNameChange }}" style="border:1px solid #E2E8F0; border-radius:7px; padding:9px 11px; font-size:13.5px; font-family:inherit; outline:none; color:#0F172A;"/>
+                  </label>
+                  <label style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#64748B; font-weight:600;">Target Title
+                    <input value="{{ form.title }}" onChange="{{ onTitleChange }}" style="border:1px solid #E2E8F0; border-radius:7px; padding:9px 11px; font-size:13.5px; font-family:inherit; outline:none; color:#0F172A;"/>
+                  </label>
+                  <label style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#64748B; font-weight:600;">Email
+                    <input value="sarah.chen@gmail.com" style="border:1px solid #E2E8F0; border-radius:7px; padding:9px 11px; font-size:13.5px; font-family:inherit; outline:none; color:#0F172A;"/>
+                  </label>
+                  <label style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#64748B; font-weight:600;">Phone
+                    <input value="(415) 555-0148" style="border:1px solid #E2E8F0; border-radius:7px; padding:9px 11px; font-size:13.5px; font-family:inherit; outline:none; color:#0F172A;"/>
+                  </label>
+                  <label style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#64748B; font-weight:600;">Location
+                    <input value="San Francisco, CA" style="border:1px solid #E2E8F0; border-radius:7px; padding:9px 11px; font-size:13.5px; font-family:inherit; outline:none; color:#0F172A;"/>
+                  </label>
+                  <label style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#64748B; font-weight:600;">Summary
+                    <textarea value="{{ form.summary }}" onChange="{{ onSummaryChange }}" style="border:1px solid #E2E8F0; border-radius:7px; padding:9px 11px; font-size:13.5px; font-family:inherit; outline:none; color:#0F172A; height:90px; resize:none;"></textarea>
+                  </label>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- Work Experience -->
+            <div style="border:1px solid #E2E8F0; border-radius:10px; margin-bottom:12px; overflow:hidden;">
+              <div onClick="{{ toggleSection_experience }}" style="display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; background:#F8FAFC;">
+                <span style="font-size:14px; font-weight:600;">Work Experience</span>
+                <span style="{{ chevronStyle_experience }}">&#8250;</span>
+              </div>
+              <sc-if value="{{ openSections.experience }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:16px; display:flex; flex-direction:column; gap:16px;">
+                  <sc-for list="{{ experienceEntries }}" as="job" hint-placeholder-count="3">
+                    <div style="padding-bottom:14px; border-bottom:1px solid #F1F5F9;">
+                      <div style="font-size:13.5px; font-weight:600; color:#0F172A;">{{ job.role }}</div>
+                      <div style="font-size:12.5px; color:#3B82F6; font-weight:500; margin:2px 0;">{{ job.company }}</div>
+                      <div style="font-size:11.5px; color:#94A3B8;">{{ job.dates }}</div>
+                    </div>
+                  </sc-for>
+                  <button style="background:none; border:1px dashed #CBD5E1; color:#64748B; border-radius:7px; padding:9px 0; font-size:12.5px; font-weight:600; cursor:pointer;">+ Add Position</button>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- Education -->
+            <div style="border:1px solid #E2E8F0; border-radius:10px; margin-bottom:12px; overflow:hidden;">
+              <div onClick="{{ toggleSection_education }}" style="display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; background:#F8FAFC;">
+                <span style="font-size:14px; font-weight:600;">Education</span>
+                <span style="{{ chevronStyle_education }}">&#8250;</span>
+              </div>
+              <sc-if value="{{ openSections.education }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:16px;">
+                  <div style="font-size:13.5px; font-weight:600;">BFA, Graphic Design</div>
+                  <div style="font-size:12.5px; color:#3B82F6; font-weight:500; margin:2px 0;">Rhode Island School of Design</div>
+                  <div style="font-size:11.5px; color:#94A3B8;">2013 &ndash; 2017</div>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- Skills -->
+            <div style="border:1px solid #E2E8F0; border-radius:10px; margin-bottom:12px; overflow:hidden;">
+              <div onClick="{{ toggleSection_skills }}" style="display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; background:#F8FAFC;">
+                <span style="font-size:14px; font-weight:600;">Skills</span>
+                <span style="{{ chevronStyle_skills }}">&#8250;</span>
+              </div>
+              <sc-if value="{{ openSections.skills }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:16px; display:flex; flex-wrap:wrap; gap:8px;">
+                  <sc-for list="{{ skills }}" as="skill" hint-placeholder-count="6">
+                    <span style="background:#EFF6FF; color:#3B82F6; font-size:12px; font-weight:600; padding:6px 12px; border-radius:999px;">{{ skill }}</span>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- Projects -->
+            <div style="border:1px solid #E2E8F0; border-radius:10px; margin-bottom:12px; overflow:hidden;">
+              <div onClick="{{ toggleSection_projects }}" style="display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; background:#F8FAFC;">
+                <span style="font-size:14px; font-weight:600;">Projects</span>
+                <span style="{{ chevronStyle_projects }}">&#8250;</span>
+              </div>
+              <sc-if value="{{ openSections.projects }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+                  <sc-for list="{{ projects }}" as="proj" hint-placeholder-count="2">
+                    <div>
+                      <div style="font-size:13.5px; font-weight:600;">{{ proj.name }}</div>
+                      <div style="font-size:12px; color:#64748B; margin-top:2px;">{{ proj.desc }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- Certifications -->
+            <div style="border:1px solid #E2E8F0; border-radius:10px; overflow:hidden;">
+              <div onClick="{{ toggleSection_certifications }}" style="display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; background:#F8FAFC;">
+                <span style="font-size:14px; font-weight:600;">Certifications</span>
+                <span style="{{ chevronStyle_certifications }}">&#8250;</span>
+              </div>
+              <sc-if value="{{ openSections.certifications }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:16px; display:flex; flex-direction:column; gap:8px;">
+                  <sc-for list="{{ certifications }}" as="cert" hint-placeholder-count="2">
+                    <div style="font-size:13px; color:#334155;">&bull; {{ cert }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <!-- LIVE PREVIEW -->
+          <div style="overflow-y:auto; background:#F1F5F9; padding:32px; display:flex; justify-content:center;">
+            <div style="{{ previewPaperStyle }}">
+              <div style="{{ previewHeaderStyle }}">
+                <div style="{{ previewNameStyle }}">{{ form.fullName }}</div>
+                <div style="{{ previewTitleStyle }}">{{ form.title }}</div>
+                <div style="{{ previewContactStyle }}"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e99a889b8881c78a818c87a98e84888085c78a8684">[email&#160;protected]</a> &nbsp;&middot;&nbsp; (415) 555-0148 &nbsp;&middot;&nbsp; San Francisco, CA &nbsp;&middot;&nbsp; linkedin.com/in/sarahchen</div>
+              </div>
+              <div style="padding:26px 40px;">
+                <div style="margin-bottom:20px;">
+                  <div style="{{ previewSectionTitleStyle }}">Summary</div>
+                  <div style="font-size:12.5px; line-height:1.6; color:#334155;">{{ form.summary }}</div>
+                </div>
+                <div style="margin-bottom:20px;">
+                  <div style="{{ previewSectionTitleStyle }}">Experience</div>
+                  <sc-for list="{{ experienceEntries }}" as="job" hint-placeholder-count="3">
+                    <div style="margin-bottom:12px;">
+                      <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:#0F172A;">
+                        <span>{{ job.role }} &mdash; {{ job.company }}</span>
+                        <span style="font-weight:500; color:#94A3B8; font-size:11.5px;">{{ job.dates }}</span>
+                      </div>
+                      <sc-for list="{{ job.bullets }}" as="b" hint-placeholder-count="2">
+                        <div style="font-size:12px; color:#475569; margin-top:4px; padding-left:14px; position:relative;">
+                          <span style="position:absolute; left:0;">&bull;</span>{{ b }}
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="margin-bottom:20px;">
+                  <div style="{{ previewSectionTitleStyle }}">Education</div>
+                  <div style="font-size:12.5px; color:#334155;"><strong>BFA, Graphic Design</strong> &mdash; Rhode Island School of Design (2013&ndash;2017)</div>
+                </div>
+                <div style="margin-bottom:20px;">
+                  <div style="{{ previewSectionTitleStyle }}">Skills</div>
+                  <div style="font-size:12.5px; color:#334155;">{{ skillsJoined }}</div>
+                </div>
+                <div>
+                  <div style="{{ previewSectionTitleStyle }}">Projects</div>
+                  <sc-for list="{{ projects }}" as="proj" hint-placeholder-count="2">
+                    <div style="font-size:12.5px; color:#334155; margin-bottom:4px;"><strong>{{ proj.name }}</strong> &mdash; {{ proj.desc }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </main>
+
+  <!-- ============ AI GENERATION MODAL ============ -->
+  <sc-if value="{{ aiModalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; background:rgba(15,23,42,0.55); display:flex; align-items:center; justify-content:center; z-index:50; animation:fadeIn .15s ease;">
+      <div style="background:#fff; width:540px; max-width:90vw; border-radius:16px; box-shadow:0 24px 64px rgba(15,23,42,0.25); padding:28px; position:relative;">
+        <button onClick="{{ closeAiModal }}" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:18px; color:#94A3B8; cursor:pointer; line-height:1;">&#10005;</button>
+
+        <sc-if value="{{ generating }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; align-items:center; padding:36px 10px 20px 10px; gap:22px;">
+            <div style="position:relative; width:64px; height:64px; display:flex; align-items:center; justify-content:center;">
+              <div style="position:absolute; inset:0; border-radius:50%; background:#3B82F6; opacity:0.25; animation:pulse-ring 1.4s ease-out infinite;"></div>
+              <div style="width:52px; height:52px; border-radius:50%; background:#3B82F6; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px;">&#10022;</div>
+            </div>
+            <div style="font-size:14.5px; font-weight:600; color:#0F172A;">{{ genMessage }}</div>
+            <div style="width:100%; height:6px; background:#F1F5F9; border-radius:999px; overflow:hidden;">
+              <div style="{{ genProgressStyle }}"></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ notGenerating }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="font-size:18px; font-weight:700; margin-bottom:4px;">Generate with AI</div>
+            <div style="font-size:13.5px; color:#64748B; margin-bottom:20px;">Paste a job posting and let AI tailor your resume to it.</div>
+
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:12px; color:#64748B; font-weight:600; margin-bottom:14px;">Job Title
+              <input value="{{ jobTitle }}" onChange="{{ onJobTitleChange }}" placeholder="e.g. Senior Product Designer" style="border:1px solid #E2E8F0; border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit; outline:none;"/>
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:12px; color:#64748B; font-weight:600; margin-bottom:22px;">Job Description
+              <textarea value="{{ jobDescription }}" onChange="{{ onJobDescriptionChange }}" placeholder="Paste the full job description here..." style="border:1px solid #E2E8F0; border-radius:8px; padding:10px 12px; font-size:13.5px; font-family:inherit; outline:none; height:120px; resize:none;"></textarea>
+            </label>
+
+            <div style="display:flex; gap:10px;">
+              <button onClick="{{ onGenerateFull }}" style="flex:1; background:#3B82F6; color:#fff; border:none; padding:12px 0; border-radius:9px; font-size:14px; font-weight:600; cursor:pointer;" style-hover="background:#2563EB;">Generate Full Resume</button>
+              <button onClick="{{ onImproveExisting }}" style="flex:1; background:#fff; color:#334155; border:1px solid #E2E8F0; padding:12px 0; border-radius:9px; font-size:14px; font-weight:600; cursor:pointer;" style-hover="background:#F1F5F9;">Improve Existing</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/x-dc" data-dc-script>
+const GEN_MESSAGES = [
+  "Analyzing job description...",
+  "Extracting key skills & requirements...",
+  "Optimizing bullet points for impact...",
+  "Finalizing your resume..."
+];
+
+const TEMPLATE_STYLES = {
+  "Modern":    { fontFamily: "'Inter',sans-serif", nameWeight: 800, headerBg: "#3B82F6", headerText: "#fff", align: "left", uppercase: false },
+  "Classic":   { fontFamily: "Georgia,serif",       nameWeight: 700, headerBg: "#fff",    headerText: "#0F172A", align: "center", uppercase: false, borderTop: "4px solid #0F172A" },
+  "Minimal":   { fontFamily: "'Inter',sans-serif", nameWeight: 600, headerBg: "#fff",    headerText: "#0F172A", align: "left", uppercase: false },
+  "Creative":  { fontFamily: "'Inter',sans-serif", nameWeight: 800, headerBg: "#7C3AED", headerText: "#fff", align: "left", uppercase: false },
+  "ATS-Safe":  { fontFamily: "Arial,sans-serif",   nameWeight: 700, headerBg: "#fff",    headerText: "#0F172A", align: "left", uppercase: false },
+  "Executive": { fontFamily: "'Inter',sans-serif", nameWeight: 800, headerBg: "#0F172A", headerText: "#fff", align: "left", uppercase: true }
+};
+
+const TEMPLATE_NAMES = ["Classic", "Modern", "Minimal", "Creative", "ATS-Safe", "Executive"];
+
+const RESUME_DATA = [
+  { id: "r1", title: "Product Designer Resume", role: "Target: Senior Product Designer", lastEdited: "2 days ago", score: 92 },
+  { id: "r2", title: "Software Engineer - Google", role: "Target: Backend Engineer, L4", lastEdited: "5 days ago", score: 68 },
+  { id: "r3", title: "Marketing Manager", role: "Target: Growth Marketing Lead", lastEdited: "1 week ago", score: 45 },
+  { id: "r4", title: "UX Researcher - Meta", role: "Target: Senior UX Researcher", lastEdited: "2 weeks ago", score: 88 },
+  { id: "r5", title: "Data Analyst Resume", role: "Target: Data Analyst II", lastEdited: "3 weeks ago", score: 74 },
+  { id: "r6", title: "Senior Engineer - Startup", role: "Target: Staff Engineer", lastEdited: "1 month ago", score: 95 }
+];
+
+const EXPERIENCE = [
+  { role: "Senior Product Designer", company: "Stripe", dates: "Jan 2022 \u2013 Present", bullets: [
+    "Led end-to-end redesign of Checkout, lifting conversion 14% across 40k merchants",
+    "Built and shipped a shared design system adopted by 9 product teams"
+  ]},
+  { role: "Product Designer", company: "Airbnb", dates: "Jun 2019 \u2013 Dec 2021", bullets: [
+    "Designed the Host Dashboard overhaul, reducing support tickets by 22%",
+    "Ran 30+ user research sessions to inform the new booking flow"
+  ]},
+  { role: "UX Designer", company: "IDEO", dates: "Jun 2017 \u2013 May 2019", bullets: [
+    "Delivered design strategy for 6 client engagements across fintech and healthcare"
+  ]}
+];
+
+const PROJECTS = [
+  { name: "Stripe Checkout Redesign", desc: "Led visual and interaction redesign, +14% conversion lift" },
+  { name: "Airbnb Host Dashboard", desc: "Redesigned analytics and messaging surfaces for hosts" }
+];
+
+const CERTIFICATIONS = ["Google UX Design Certificate", "NN/g UX Certification"];
+const SKILLS = ["Figma", "Design Systems", "Prototyping", "User Research", "HTML/CSS", "Design Thinking"];
+const MATCHED_KEYWORDS = ["Figma", "Prototyping", "User Research", "Design Systems", "Cross-functional Collaboration", "A/B Testing"];
+const MISSING_KEYWORDS = ["SQL", "Accessibility (WCAG)", "Stakeholder Management", "Data-Driven Decisions"];
+
+function badgeStyleFor(score) {
+  let bg = "#ECFDF5", color = "#059669";
+  if (score < 60) { bg = "#FEF2F2"; color = "#DC2626"; }
+  else if (score < 80) { bg = "#FFFBEB"; color = "#B45309"; }
+  return "font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:" + bg + ";color:" + color + ";";
+}
+
+class Component extends DCLogic {
+  state = {
+    page: "dashboard",
+    aiModalOpen: false,
+    generating: false,
+    genStep: 0,
+    openSections: { personal: true, experience: true, education: false, skills: false, projects: false, certifications: false },
+    form: {
+      fullName: "Sarah Chen",
+      title: "Senior Product Designer",
+      summary: "Product designer with 7+ years crafting design systems and checkout experiences for high-growth companies. Led redesigns that lifted conversion by double digits while scaling reusable component libraries across dozens of teams."
+    },
+    activeTemplate: "Modern",
+    jobTitle: "",
+    jobDescription: ""
+  };
+
+  setPage = (p) => this.setState({ page: p });
+  openAiModal = () => this.setState({ aiModalOpen: true, generating: false, genStep: 0 });
+  closeAiModal = () => {
+    if (this.genTimer) clearInterval(this.genTimer);
+    this.setState({ aiModalOpen: false, generating: false, genStep: 0 });
+  };
+
+  startGenerate = () => {
+    this.setState({ generating: true, genStep: 0 });
+    this.genTimer = setInterval(() => {
+      this.setState((s) => {
+        const next = s.genStep + 1;
+        if (next >= GEN_MESSAGES.length) {
+          clearInterval(this.genTimer);
+          setTimeout(() => this.setState({ aiModalOpen: false, generating: false, genStep: 0, page: "builder" }), 700);
+          return { genStep: GEN_MESSAGES.length - 1 };
+        }
+        return { genStep: next };
+      });
+    }, 900);
+  };
+
+  componentWillUnmount() {
+    if (this.genTimer) clearInterval(this.genTimer);
+  }
+
+  toggleSection = (key) => this.setState((s) => ({ openSections: { ...s.openSections, [key]: !s.openSections[key] } }));
+  updateForm = (field, value) => this.setState((s) => ({ form: { ...s.form, [field]: value } }));
+  selectTemplate = (name) => this.setState({ activeTemplate: name });
+
+  renderVals() {
+    const s = this.state;
+    const navConfig = [
+      { id: "dashboard", label: "My Resumes", enabled: true },
+      { id: "templates", label: "Templates", enabled: true },
+      { id: "cover-letters", label: "Cover Letters", enabled: false },
+      { id: "ats", label: "ATS Checker", enabled: true },
+      { id: "settings", label: "Settings", enabled: false }
+    ];
+
+    const navItems = navConfig.map((item) => {
+      const active = s.page === item.id;
+      return {
+        id: item.id,
+        label: item.label,
+        onClick: item.enabled ? () => this.setPage(item.id) : () => {},
+        wrapStyle: {
+          display: "flex", alignItems: "center", gap: "11px", padding: "9px 12px",
+          borderRadius: "8px", cursor: item.enabled ? "pointer" : "default",
+          background: active ? "rgba(59,130,246,0.16)" : "transparent",
+          opacity: item.enabled ? 1 : 0.4
+        },
+        dotStyle: {
+          width: "6px", height: "6px", borderRadius: "50%",
+          background: active ? "#3B82F6" : "rgba(255,255,255,0.35)", flexShrink: 0
+        },
+        textStyle: {
+          fontSize: "13.5px", fontWeight: active ? 600 : 500,
+          color: active ? "#fff" : "rgba(255,255,255,0.65)"
+        }
+      };
+    });
+
+    const resumeCards = RESUME_DATA.map((r) => ({
+      id: r.id, title: r.title, role: r.role, lastEdited: r.lastEdited, score: r.score,
+      badgeStyle: badgeStyleFor(r.score),
+      onEdit: () => this.setPage("builder")
+    }));
+
+    const templateCards = TEMPLATE_NAMES.map((name) => {
+      const t = TEMPLATE_STYLES[name];
+      return {
+        name, tag: name === "ATS-Safe" ? "Plain-text friendly" : (name === "Executive" ? "Bold & senior" : "Popular"),
+        headerBarStyle: { width: "45%", height: "16px", borderRadius: "3px", background: t.headerBg === "#fff" ? "#0F172A" : t.headerBg },
+        onUse: () => { this.selectTemplate(name); this.setPage("builder"); }
+      };
+    });
+
+    const templateSwitcherItems = TEMPLATE_NAMES.map((name) => {
+      const active = s.activeTemplate === name;
+      return {
+        name,
+        onClick: () => this.selectTemplate(name),
+        btnStyle: {
+          border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "12.5px", fontWeight: 600,
+          cursor: "pointer", background: active ? "#fff" : "transparent",
+          color: active ? "#0F172A" : "#64748B", boxShadow: active ? "0 1px 3px rgba(15,23,42,0.12)" : "none"
+        }
+      };
+    });
+
+    const tpl = TEMPLATE_STYLES[s.activeTemplate];
+    const skillsJoined = SKILLS.join("  \u00b7  ");
+
+    return {
+      isDashboard: s.page === "dashboard",
+      isBuilder: s.page === "builder",
+      isAts: s.page === "ats",
+      isTemplates: s.page === "templates",
+      navItems,
+      resumeCards,
+      templateCards,
+      templateSwitcherItems,
+      aiModalOpen: s.aiModalOpen,
+      generating: s.generating,
+      notGenerating: !s.generating,
+      genMessage: GEN_MESSAGES[s.genStep] || GEN_MESSAGES[0],
+      genProgressStyle: { height: "100%", borderRadius: "999px", background: "#3B82F6", width: (((s.genStep + 1) / GEN_MESSAGES.length) * 100) + "%", transition: "width .3s ease" },
+      jobTitle: s.jobTitle,
+      jobDescription: s.jobDescription,
+      onJobTitleChange: (e) => this.setState({ jobTitle: e.target.value }),
+      onJobDescriptionChange: (e) => this.setState({ jobDescription: e.target.value }),
+      onGenerateFull: this.startGenerate,
+      onImproveExisting: this.startGenerate,
+      openAiModal: this.openAiModal,
+      closeAiModal: this.closeAiModal,
+
+      openSections: s.openSections,
+      toggleSection_personal: () => this.toggleSection("personal"),
+      toggleSection_experience: () => this.toggleSection("experience"),
+      toggleSection_education: () => this.toggleSection("education"),
+      toggleSection_skills: () => this.toggleSection("skills"),
+      toggleSection_projects: () => this.toggleSection("projects"),
+      toggleSection_certifications: () => this.toggleSection("certifications"),
+      chevronStyle_personal: { display: "inline-block", color: "#94A3B8", fontSize: "16px", transform: s.openSections.personal ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" },
+      chevronStyle_experience: { display: "inline-block", color: "#94A3B8", fontSize: "16px", transform: s.openSections.experience ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" },
+      chevronStyle_education: { display: "inline-block", color: "#94A3B8", fontSize: "16px", transform: s.openSections.education ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" },
+      chevronStyle_skills: { display: "inline-block", color: "#94A3B8", fontSize: "16px", transform: s.openSections.skills ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" },
+      chevronStyle_projects: { display: "inline-block", color: "#94A3B8", fontSize: "16px", transform: s.openSections.projects ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" },
+      chevronStyle_certifications: { display: "inline-block", color: "#94A3B8", fontSize: "16px", transform: s.openSections.certifications ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" },
+
+      form: s.form,
+      onFullNameChange: (e) => this.updateForm("fullName", e.target.value),
+      onTitleChange: (e) => this.updateForm("title", e.target.value),
+      onSummaryChange: (e) => this.updateForm("summary", e.target.value),
+
+      experienceEntries: EXPERIENCE,
+      projects: PROJECTS,
+      certifications: CERTIFICATIONS,
+      skills: SKILLS,
+      skillsJoined,
+      matchedKeywords: MATCHED_KEYWORDS,
+      missingKeywords: MISSING_KEYWORDS,
+
+      previewPaperStyle: { width: "760px", maxWidth: "100%", minHeight: "980px", background: "#fff", boxShadow: "0 4px 24px rgba(15,23,42,0.08)", fontFamily: tpl.fontFamily, borderTop: tpl.borderTop || "none" },
+      previewHeaderStyle: { background: tpl.headerBg, color: tpl.headerText, padding: "32px 40px", textAlign: tpl.align },
+      previewNameStyle: { fontSize: "28px", fontWeight: tpl.nameWeight, letterSpacing: tpl.uppercase ? "0.04em" : "-0.01em", textTransform: tpl.uppercase ? "uppercase" : "none" },
+      previewTitleStyle: { fontSize: "14px", fontWeight: 500, marginTop: "4px", opacity: 0.85 },
+      previewContactStyle: { fontSize: "11.5px", marginTop: "10px", opacity: 0.75 },
+      previewSectionTitleStyle: { fontSize: "12px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#94A3B8", marginBottom: "8px", borderBottom: "1px solid #E2E8F0", paddingBottom: "5px" }
+    };
+  }
+}
+
+</script>
+</body>
+</html>
